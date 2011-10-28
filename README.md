@@ -4,7 +4,9 @@ It is a base model to inherit from using prototype in Javascript. It contains al
 It uses AmplifyJS as a default ajax handler otherwise you can override the ko.baseKnockoutModel.ajax to something else. It just needs to have the same syntax as AmplifyJS.
 
 Example:
+
 ```javascript
+
 myApp.MyModel = (function () {
 	ko.baseKnockoutModel.extend(MyModel);
 
@@ -20,5 +22,7 @@ myApp.MyModel = (function () {
 
 	return MyModel;
 })();
+
 ```
+
 More documentation to come once I get some more time.
