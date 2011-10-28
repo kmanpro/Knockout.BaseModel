@@ -35,7 +35,7 @@
 		};
 	});
 
-	ko.baseKnockoutModel = (function () {
+	ko.baseModel = (function () {
 		var __hasProp = Object.prototype.hasOwnProperty,
 		__extends = function (child, parent) {
 			for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
@@ -46,12 +46,12 @@
 			return child;
 		};
 
-		baseKnockoutModel.extend = function(child){
-			return __extends(child, baseKnockoutModel);
+		baseModel.extend = function(child){
+			return __extends(child, baseModel);
 		};
 
-		baseKnockoutModel.__defaults = {};
-		function baseKnockoutModel() {
+		baseModel.__defaults = {};
+		function baseModel() {
 			var i, item, that = this;
 			for (i in this) {
 				if (!__hasProp.call(this, i)) continue;
@@ -66,9 +66,9 @@
 			that.errors = ko.validation.group(that.observablesToValidate())
 		}
 
-		baseKnockoutModel.ajax = amplify;
+		baseModel.ajax = amplify;
 		
-		baseKnockoutModel.prototype.getModelFromServer = function (params, callback) {
+		baseModel.prototype.getModelFromServer = function (params, callback) {
 			var that = this;
 			that.constructor.ajax.request(that.constructor.webMethods.getModelFromServer, params, function (data) {
 				that.set(data);
@@ -76,20 +76,20 @@
 			});
 		};
 
-		baseKnockoutModel.webMethodUrl = "SetMe/";
-		baseKnockoutModel.webMethods = {
+		baseModel.webMethodUrl = "SetMe/";
+		baseModel.webMethods = {
 			getModelFromServer: "getModelFromServer"
 		};
 	
-		baseKnockoutModel.prototype.get = function (attr) {
+		baseModel.prototype.get = function (attr) {
 			return ko.utils.unwrapObservable(this[attr]);
 		};
 	
-		baseKnockoutModel.prototype.observablesToValidate = function(){ return this; }
+		baseModel.prototype.observablesToValidate = function(){ return this; }
 
-		baseKnockoutModel.prototype.errors = null;
+		baseModel.prototype.errors = null;
 
-		baseKnockoutModel.prototype.runIfModelValid = function(functionToRun){
+		baseModel.prototype.runIfModelValid = function(functionToRun){
 			this.errors = ko.validation.group(this.observablesToValidate());
 			if(this.errors().length != 0){
 				this.errors.showAllMessages();
@@ -98,11 +98,11 @@
 			return functionToRun();
 		};
 
-		baseKnockoutModel.prototype.toJS = function(){
+		baseModel.prototype.toJS = function(){
 			return ko.toJS(this);
 		};
 
-		baseKnockoutModel.prototype.set = function (args) {
+		baseModel.prototype.set = function (args) {
 			return setParams(this, args);
 		};
 
@@ -138,6 +138,6 @@
 			return obj;
 		}
 
-		return baseKnockoutModel;
+		return baseModel;
 	})();
 })();

@@ -1,14 +1,14 @@
 **Knockout.BaseModel** is a plugin to use with KnockoutJS and Knockout.Validation and AmplifyJS(optional).
 
 It is a base model to inherit from using prototype in Javascript. It contains all the ajax methods and validation in itself.
-It uses AmplifyJS as a default ajax handler otherwise you can override the ko.baseKnockoutModel.ajax to something else. It just needs to have the same syntax as AmplifyJS.
+It uses AmplifyJS as a default ajax handler otherwise you can override the ko.baseModel.ajax to something else. It just needs to have the same syntax as AmplifyJS.
 
 Example:
 
 ```javascript
 
 myApp.MyModel = (function () {
-	ko.baseKnockoutModel.extend(MyModel);
+	ko.baseModel.extend(MyModel);
 
 	function MyModel() {
 		var model = this;
