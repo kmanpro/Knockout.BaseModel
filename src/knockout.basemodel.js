@@ -58,9 +58,13 @@
 				item = this[i];
 				this.constructor.__defaults[i] = this.get(i);
 			}
-
+			var tryGetName = function(){
+				var name = that.constructor.toString().match(/function\s+(\w+) *\(/);
+				return (name)? name[1]: '';
+			};
+			that.constructor.page = that.constructor.page || tryGetName();
 			for(var i in that.constructor.webMethods){
-				that.constructor.ajax.request.define(that.constructor.webMethods[i], that.constructor.webMethodUrl + that.constructor.webMethods[i]);
+				that.constructor.ajax.request.define(that.constructor.page + "_" + i, that.constructor.webMethods[i].serviceType || "ajax", that.constructor.webMethods[i]);
 			}
 
 			that.errors = ko.validation.group(that.observablesToValidate())
@@ -68,17 +72,24 @@
 
 		baseModel.ajax = amplify;
 		
+		baseModel.prototype.page = null;
 		baseModel.prototype.getModelFromServer = function (params, callback) {
 			var that = this;
-			that.constructor.ajax.request(that.constructor.webMethods.getModelFromServer, params, function (data) {
+			that.request("getModelFromServer", params, function (data) {
 				that.set(data);
 				if (typeof callback === "function") callback(data);
 			});
 		};
 
-		baseModel.webMethodUrl = "SetMe/";
+		baseModel.prototype.request = function (webMethodKey, params, callback) {
+			var that = this;
+			that.constructor.ajax.request(that.constructor.page + "_" + webMethodKey, params, function (data) {
+				if (typeof callback === "function") callback(data);
+			});
+		};
+
 		baseModel.webMethods = {
-			getModelFromServer: "getModelFromServer"
+			getModelFromServer: {url:"getModelFromServer"}
 		};
 	
 		baseModel.prototype.get = function (attr) {
