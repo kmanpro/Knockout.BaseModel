@@ -16,14 +16,14 @@
 	};
 
 	ko.knockoutCollection = (function(type){
-		this.type = type;
-		this.models = ko.observableArray();
-		this.createCollection = function (data, callback) {
+		var result = new ko.observableArray();
+		result.type = type;
+		result.createCollection = function (data, callback) {
 			var collection, item, obj, _i, _len;
 			collection = [];
 			for (_i = 0, _len = data.length; _i < _len; _i++) {
 				item = data[_i];
-				obj = new this.type;
+				obj = new result.type;
 				if (typeof callback === "function") {
 					obj.set(callback(item));
 				} else {
@@ -31,8 +31,9 @@
 				}
 				collection.push(obj);
 			}
-			this.models(collection);
+			result(collection);
 		};
+		return result;
 	});
 
 	ko.baseModel = (function () {
@@ -127,8 +128,8 @@
 				if (typeof item === "string" && item.match(/&[^\s]*;/) !== false) {
 					new_value = ko.utils.unescapeHtml(item)
 				}
-				else if(val instanceof ko.knockoutCollection){
-					val.createCollection(item);
+				else if(obj[i] && obj[i].type && obj[i].createCollection){
+					obj[i].createCollection(item);
 					continue;
 				}
 				else if (typeof item === "object" && typeof val === "object") {
