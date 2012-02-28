@@ -1,7 +1,7 @@
 ﻿(function () {
-    if (typeof (ko) === undefined) throw 'Knockout is required, please ensure it is loaded before loading this base model plug-in';
+	if (typeof (ko) === undefined) throw 'Knockout is required, please ensure it is loaded before loading this base model plug-in';
 	if (typeof (ko.validation) === undefined) throw 'Knockout.validation is required, please ensure it is loaded before loading this base model plug-in';
-	
+
 	ko.utils.unescapeHtml = function (str) {
 		var result, temp;
 		if (str.length > 0) {
@@ -15,7 +15,7 @@
 		}
 	};
 
-	ko.knockoutCollection = (function(type){
+	ko.knockoutCollection = (function (type) {
 		var result = new ko.observableArray();
 		result.type = type;
 		result.createCollection = function (data, callback) {
@@ -47,37 +47,39 @@
 			return child;
 		};
 
-		baseModel.extend = function(child){
+		baseModel.extend = function (child) {
 			return __extends(child, baseModel);
 		};
 
 		baseModel.__defaults = {};
 		function baseModel() {
-			var i, item, that = this;
+			var i, that = this;
 			for (i in this) {
 				if (!__hasProp.call(this, i)) continue;
-				item = this[i];
 				this.constructor.__defaults[i] = this.get(i);
 			}
-			
-			var tryGetName = function(){
+
+			var tryGetName = function () {
 				var name = that.constructor.toString().match(/function\s+(\w+) *\(/);
-				return (name)? name[1]: '';
+				return (name) ? name[1] : '';
 			};
 			that.constructor.page = that.constructor.page || tryGetName();
-			
-			for(var i in that.constructor.webMethods){
-				that.constructor.ajax.request.define(that.constructor.page + "_" + i, that.constructor.webMethods[i].serviceType || "ajax", that.constructor.webMethods[i]);
+
+			for (var x in that.constructor.webMethods) {
+				that.constructor.ajax.request.define(that.constructor.page + "_" + x, that.constructor.webMethods[x].serviceType || "ajax", that.constructor.webMethods[x]);
 			}
 
 			that.errors = ko.validation.group(that.observablesToValidate());
 		}
 
 		baseModel.ajax = amplify;
-		baseModel.prototype.reset = function(){
+
+		baseModel.prototype.reset = function () {
 			this.set(this.constructor.__defaults);
 		};
+
 		baseModel.prototype.page = null;
+
 		baseModel.prototype.getModelFromServer = function (params, callback) {
 			var that = this;
 			that.request("getModelFromServer", params, function (data) {
@@ -86,9 +88,19 @@
 			});
 		};
 
+		baseModel.prototype.backup = function () {
+			return this.constructor.__backup = this.toJS();
+		};
+
+		baseModel.prototype.restore = function () {
+			this.set(this.constructor.__backup);
+			this.constructor.__backup = {};
+			return this;
+		};
+
 		baseModel.prototype.validateAndRequest = function (webMethodKey, params, callback) {
 			var that = this;
-			that.runIfModelValid(function(){
+			that.runIfModelValid(function () {
 				that.request(webMethodKey, params, callback);
 			});
 		};
@@ -101,27 +113,27 @@
 		};
 
 		baseModel.webMethods = {
-			getModelFromServer: {url:"getModelFromServer"}
+			getModelFromServer: { url: "getModelFromServer" }
 		};
-	
+
 		baseModel.prototype.get = function (attr) {
 			return ko.utils.unwrapObservable(this[attr]);
 		};
 
-		baseModel.prototype.observablesToValidate = function() { return this; };
+		baseModel.prototype.observablesToValidate = function () { return this; };
 
 		baseModel.prototype.errors = null;
 
-		baseModel.prototype.runIfModelValid = function(functionToRun){
+		baseModel.prototype.runIfModelValid = function (functionToRun) {
 			this.errors = ko.validation.group(this.observablesToValidate());
-			if(this.errors().length != 0){
+			if (this.errors().length != 0) {
 				this.errors.showAllMessages();
-				return;
+				return null;
 			}
 			return functionToRun();
 		};
 
-		baseModel.prototype.toJS = function(){
+		baseModel.prototype.toJS = function () {
 			return ko.toJS(this);
 		};
 
@@ -132,32 +144,32 @@
 		};
 
 		function setParams(obj, args) {
-			var i, new_value, item;
+			var i, newValue, item;
 
 			for (i in args) {
 				item = args[i];
 				var val = ko.utils.unwrapObservable(obj[i]);
 
 				if (typeof item === "string" && item.match(/&[^\s]*;/) !== false) {
-					new_value = ko.utils.unescapeHtml(item)
+					newValue = ko.utils.unescapeHtml(item);
 				}
-				else if(obj[i] && obj[i].type && obj[i].createCollection){
+				else if (obj[i] && obj[i].type && obj[i].createCollection) {
 					obj[i].createCollection(item);
 					continue;
 				}
 				else if (typeof item === "object" && typeof val === "object") {
-					new_value = setParams(val, item);
+					newValue = setParams(val, item);
 				}
 				else {
-					new_value = item;
+					newValue = item;
 				}
 
 				if (ko.isWriteableObservable(obj[i])) {
-					if (new_value !== obj[i]()) {
-						obj[i](new_value);
+					if (newValue !== obj[i]()) {
+						obj[i](newValue);
 					}
 				} else if (obj[i] !== void 0 && ko.isObservable(obj[i]) === false) {
-					obj[i] = new_value;
+					obj[i] = newValue;
 				}
 			}
 			return obj;
