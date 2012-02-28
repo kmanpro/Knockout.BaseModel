@@ -59,26 +59,37 @@
 				item = this[i];
 				this.constructor.__defaults[i] = this.get(i);
 			}
+			
 			var tryGetName = function(){
 				var name = that.constructor.toString().match(/function\s+(\w+) *\(/);
 				return (name)? name[1]: '';
 			};
 			that.constructor.page = that.constructor.page || tryGetName();
+			
 			for(var i in that.constructor.webMethods){
 				that.constructor.ajax.request.define(that.constructor.page + "_" + i, that.constructor.webMethods[i].serviceType || "ajax", that.constructor.webMethods[i]);
 			}
 
-			that.errors = ko.validation.group(that.observablesToValidate())
+			that.errors = ko.validation.group(that.observablesToValidate());
 		}
 
 		baseModel.ajax = amplify;
-		
+		baseModel.prototype.reset = function(){
+			this.set(this.constructor.__defaults);
+		};
 		baseModel.prototype.page = null;
 		baseModel.prototype.getModelFromServer = function (params, callback) {
 			var that = this;
 			that.request("getModelFromServer", params, function (data) {
 				that.set(data);
 				if (typeof callback === "function") callback(data);
+			});
+		};
+
+		baseModel.prototype.validateAndRequest = function (webMethodKey, params, callback) {
+			var that = this;
+			that.runIfModelValid(function(){
+				that.request(webMethodKey, params, callback);
 			});
 		};
 
@@ -96,8 +107,8 @@
 		baseModel.prototype.get = function (attr) {
 			return ko.utils.unwrapObservable(this[attr]);
 		};
-	
-		baseModel.prototype.observablesToValidate = function(){ return this; }
+
+		baseModel.prototype.observablesToValidate = function() { return this; };
 
 		baseModel.prototype.errors = null;
 
@@ -115,7 +126,9 @@
 		};
 
 		baseModel.prototype.set = function (args) {
-			return setParams(this, args);
+			setParams(this, args);
+			this.errors = ko.validation.group(this.observablesToValidate());
+			return this;
 		};
 
 		function setParams(obj, args) {
