@@ -157,7 +157,7 @@
 					obj[i].createCollection(item);
 					continue;
 				}
-				else if (typeof item === "object" && typeof val === "object") {
+				else if (typeof item === "object" && typeof val === "object" && item instanceof Array == false) {
 					newValue = setParams(val, item);
 				}
 				else {
